@@ -151,7 +151,6 @@ router.post('/', passport.authenticate('jwt', {session:false}) , (req, res, next
     @desc      Add experience to profile
     @access    Private
 */
-
 router.post('/experience', passport.authenticate('jwt', {session:false}), (req,res) => {
   const {errors, isValid} = validateExperienceInput(req.body);
   if(!isValid){
@@ -183,7 +182,6 @@ router.post('/experience', passport.authenticate('jwt', {session:false}), (req,r
     @desc      Add education to profile
     @access    Private
 */
-
 router.post('/education', passport.authenticate('jwt', {session:false}), (req,res) => {
   const {errors, isValid} = validateEducationInput(req.body);
   if(!isValid){
@@ -207,6 +205,44 @@ router.post('/education', passport.authenticate('jwt', {session:false}), (req,re
       console.log(saveError);
       return res.status(400).json({error: 'something went wrong'});
     });
+  });
+});
+
+/*
+    @route     DELETE profile/experience/:exp_id
+    @desc      Delete single experience
+    @access    Private
+*/
+router.delete('/experience/:exp_id', passport.authenticate('jwt', {session:false}), (req,res) => {
+  profileModel.findOne({user:req.user.id}).then(profileResult => {
+    //map untuk loop, lalu ambil index dengan id dari param
+    const removeIndex = profileResult.experience.map(item => item.id).indexOf(req.params.exp_id);
+    profileResult.experience.splice(removeIndex, 1);
+    profileResult.save().then(profileResult => {
+      return res.json(profileResult);
+    });
+  }).catch(profileError => {
+      console.log(profileError);
+      return res.status(400).json({error: 'something went wrong'});
+  });
+});
+
+/*
+    @route     DELETE profile/education/:edu_id
+    @desc      Delete single education
+    @access    Private
+*/
+router.delete('/education/:edu_id', passport.authenticate('jwt', {session:false}), (req,res) => {
+  profileModel.findOne({user:req.user.id}).then(profileResult => {
+    //map untuk loop, lalu ambil index dengan id dari param
+    const removeIndex = profileResult.education.map(item => item.id).indexOf(req.params.edu_id);
+    profileResult.education.splice(removeIndex, 1);
+    profileResult.save().then(profileResult => {
+      return res.json(profileResult);
+    });
+  }).catch(profileError => {
+      console.log(profileError);
+      return res.status(400).json({error: 'something went wrong'});
   });
 });
 
